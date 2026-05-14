@@ -1,0 +1,28 @@
+name: Cloudflare Pages 빌드 검증
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install --prefer-offline || npm install
+      - name: WordPress 파일 변환 (PHP→Astro, JS→TS)
+        run: node scripts/convert-wp-files.mjs
+        continue-on-error: true
+      - name: Astro 빌드
+        env:
+          SITE_ID: ee6eeae3-4d26-4901-ba58-2b014c367f0a
+        run: npm run build
+      - name: 빌드 검증
+        run: |
+          test -f dist/index.html || (echo "빌드 실패: index.html 없음" && exit 1)
+          echo "빌드 성공: $(find dist -type f | wc -l)개 파일"

@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPosts, getSettings } from '../lib/db';
+const settings = await getSettings();
+const posts    = (await getPosts()).slice(0, settings.posts_per_page);
+---
+<Base>
+  <h1 style="font-size:2rem;font-weight:800;margin-bottom:2rem;">최근 글</h1>
+  {posts.length === 0
+    ? <p style="color:#9ca3af;">아직 작성된 글이 없습니다.</p>
+    : <ul class="post-list">
+        {posts.map(post => (
+          <li class="post-card">
+            <div class="post-meta">{new Date(post.created_at).toLocaleDateString('ko-KR')} · {post.author}</div>
+            <div class="post-title"><a href={`/blog/${post.slug}`}>{post.title}</a></div>
+            {post.description && <p>{post.description}</p>}
+          </li>
+        ))}
+      </ul>
+  }
+</Base>

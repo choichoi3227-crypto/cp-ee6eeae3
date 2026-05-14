@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getPosts, getPostContent } from '../../lib/db';
+import { markdownToHtml } from '../../lib/markdown';
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map(p => ({ params: { slug: p.slug }, props: { post: p } }));
+}
+const { post } = Astro.props;
+const mdContent   = await getPostContent(post.slug);
+const htmlContent = markdownToHtml(mdContent);
+---
+<Base title={post.title} description={post.description}>
+  <article>
+    <header style="margin-bottom:2.5rem;">
+      <h1 style="font-size:2rem;font-weight:800;margin-bottom:.75rem;">{post.title}</h1>
+      <div class="post-meta">{new Date(post.created_at).toLocaleDateString('ko-KR')} · {post.author}</div>
+    </header>
+    <div class="prose" set:html={htmlContent} />
+    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid #e5e7eb;">
+      <a href="/blog">← 목록으로</a>
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,28 @@
+---
+import { getSettings } from '../lib/db';
+interface Props { title?: string; description?: string; }
+const { title, description } = Astro.props;
+const settings = await getSettings();
+const pageTitle = title ? `${title} — ${settings.site_name}` : settings.site_name;
+---
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{pageTitle}</title>
+  {description && <meta name="description" content={description} />}
+  <link rel="stylesheet" href="/styles/global.css">
+  <link rel="alternate" type="application/rss+xml" title={settings.site_name} href="/rss.xml">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="/" class="site-title">{settings.site_name}</a>
+      <nav><a href="/">홈</a><a href="/blog">블로그</a></nav>
+    </div>
+  </header>
+  <main class="container"><slot /></main>
+  <footer><div class="container"><p>© {new Date().getFullYear()} {settings.site_name}</p></div></footer>
+</body>
+</html>
